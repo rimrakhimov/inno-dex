@@ -1,11 +1,10 @@
 const InnoDex = artifacts.require("InnoDex");
-const ERC20 = artifacts.require("ERC20Basic");
 
+const TST1Address = "0xFE184DB9F97Bd46bE7b9CeC1D7588efd8f4e7273";
 const WETHAddress = "0x0a180a76e4466bf68a7f86fb029bed3cccfaaac5";
 const defaultPriceStep = 1000;
 
 module.exports = async (deployer) => {
     InnoDexInstance = await InnoDex.deployed();
-    ERC20Instance = await ERC20.deployed();
-    await InnoDexInstance.addInstrument(ERC20Instance.address, WETHAddress, defaultPriceStep);
+    await InnoDexInstance.addInstrument(TST1Address, WETHAddress, defaultPriceStep);
 }
