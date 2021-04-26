@@ -65,7 +65,7 @@ contract InnoDex {
         );
 
         address contractAddress =
-            address(new InstrumentDefault(asset1, asset2, step));
+            address(new Instrument(asset1, asset2, step));
         instrumentBySymbols[h].contractAddress = contractAddress;
         instrumentBySymbols[h].index = instrumentSymbols.length;
         instrumentSymbols.push(h);
