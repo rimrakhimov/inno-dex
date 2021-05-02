@@ -88,10 +88,21 @@ library OrderSetLib {
             self.indexOf[lastOrder.id] = index;
             delete self.indexOf[orderId];
 
-            self.orders[index] = lastOrder;
+            self.orders[index - 1] = lastOrder;
             self.orders.pop();
 
             removed = true;
+        }
+    }
+
+    function clear(OrderSet storage self) internal {
+        uint256 setSize = self.orders.length;
+        while (setSize > 0) {
+            bytes32 orderId = self.orders[setSize - 1].id;
+            delete self.indexOf[orderId];
+            self.orders.pop();
+
+            setSize--;
         }
     }
 }
