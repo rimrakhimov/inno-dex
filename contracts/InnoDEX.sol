@@ -4,7 +4,7 @@ pragma solidity ^0.8.3;
 
 import "./IInstrument.sol";
 import "./InstrumentDefault.sol";
-import "./ERC20/IERC20Metadata.sol";
+import "./ERC20/extensions/IERC20Metadata.sol";
 
 contract InnoDex {
     struct InstrumentInternal {
