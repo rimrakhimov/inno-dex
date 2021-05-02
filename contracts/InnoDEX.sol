@@ -52,12 +52,10 @@ contract InnoDex {
     }
 
     function addInstrument(
-        address asset1,
-        address asset2,
-        uint256 step
+        address instrument
     ) external returns (address) {
-        string memory sym1 = IERC20Metadata(asset1).symbol();
-        string memory sym2 = IERC20Metadata(asset2).symbol();
+        string memory sym1 = IERC20Metadata(IInstrument(instrument).getFirstAssetAddress()).symbol();
+        string memory sym2 = IERC20Metadata(IInstrument(instrument).getSecondAssetAddress()).symbol();
 
         bytes32 h = getHashBySymbols(sym1, sym2);
         bytes32 h2 = getHashBySymbols(sym2, sym1);
@@ -66,15 +64,13 @@ contract InnoDex {
             "Instrument with specified assets already exists"
         );
 
-        address contractAddress =
-            address(new Instrument(asset1, asset2, step));
-        instrumentBySymbols[h].contractAddress = contractAddress;
+        instrumentBySymbols[h].contractAddress = instrument;
         instrumentBySymbols[h].index = instrumentSymbols.length;
         instrumentSymbols.push(h);
-        ownerByInstrument[contractAddress] = msg.sender;
+        ownerByInstrument[instrument] = msg.sender;
 
-        emit InstrumentAdded(sym1, sym2, contractAddress, msg.sender);
-        return contractAddress;
+        emit InstrumentAdded(sym1, sym2, instrument, msg.sender);
+        return instrument;
     }
 
     function removeInstrument(address instrAddr) external {

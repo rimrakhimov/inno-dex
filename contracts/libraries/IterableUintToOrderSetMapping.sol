@@ -112,8 +112,7 @@ library IterableUintToOrderSetMapping {
 
     function removeKey(Mapping storage self, uint256 key) private {
         uint256 index = self.indexOf[key];
-
-        // TODO
+        shiftKeysLeft(self, index);
     }
 
     function shiftKeysRight(Mapping storage self, uint256 startingIndex)
@@ -121,7 +120,7 @@ library IterableUintToOrderSetMapping {
     {
         uint256 index = self.keys.length - 1;
 
-        self.keys.push(self.keys[index]); // copy last element to new cell
+        self.keys.push(self.keys[index]); // copies last element to new cell
         self.indexOf[self.keys[index]] = index + 1;
 
         while (index > startingIndex) {
@@ -131,13 +130,15 @@ library IterableUintToOrderSetMapping {
         }
     }
 
-    function shiftKeysLeft(Mapping storage self, uint256 endingIndex) private {
-        uint256 index = self.keys.length - 1;
-
-        // TODO
-
-        // while (index > endingIndex) {
-        //     self.keys[index] = self.keys[index - 1];
-        // }
+    function shiftKeysLeft(Mapping storage self, uint256 startingIndex)
+        private
+    {
+        uint256 index = startingIndex;
+        while (index < self.keys.length - 1) {
+            self.keys[index] = self.keys[index + 1];
+            self.indexOf[self.keys[index]] = index;
+            index++;
+        }
+        self.keys.pop();
     }
 }
