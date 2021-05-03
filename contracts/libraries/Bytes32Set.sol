@@ -37,21 +37,14 @@ library Bytes32SetLib {
 
     // Adds an element to the set.
     // If an element already exists in the set, the set remains the same.
-    // Otherwise, a new element is added to the set and `false` is returned.
     function insert(Bytes32Set storage self, bytes32 elem)
         internal
-        returns (bool replaced)
     {
         if (!member(self, elem)) {
             self.items.push(elem);
 
             uint256 index = self.items.length;
             self.indexOf[elem] = index;
-        } else {
-            uint256 index = self.indexOf[elem];
-            self.items[index - 1] = elem;
-
-            replaced = true;
         }
     }
 
@@ -81,6 +74,7 @@ library Bytes32SetLib {
         uint256 setSize = self.items.length;
         while (setSize > 0) {
             bytes32 elem = self.items[setSize - 1];
+        
             delete self.indexOf[elem];
             self.items.pop();
 
