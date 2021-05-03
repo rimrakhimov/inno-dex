@@ -37,6 +37,7 @@ contract Instrument is IInstrument, Context {
         override(IInstrument)
         returns (string memory)
     {
+        require(false, "getName");
         string memory assetSym1 = IERC20Metadata(_asset1).symbol();
         string memory assetSym2 = IERC20Metadata(_asset2).symbol();
         return string(abi.encodePacked(assetSym1, "/", assetSym2));
@@ -73,12 +74,27 @@ contract Instrument is IInstrument, Context {
         return Metadata(_asset1, _asset2, _priceStep, getName());
     }
 
+    function getOrderBooks() view external returns (OrderBookQty[] memory) {
+        // TODO
+    }
+
+    function getOrderIds(address bidder) view external returns (bytes32[] memory) {
+        // TODO
+    }
+
     function limitOrder(
-        OrderType orderType,
+        bool toBuy,
         uint256 price,
         uint256 qty,
         uint256 flags
     ) external override(IInstrument) returns (bytes32) {
+        OrderType orderType;
+        if (toBuy) {
+            orderType = OrderType.Buy;
+        } else {
+            orderType = OrderType.Sell;
+        }
+
         bytes32 orderId =
             keccak256(
                 abi.encodePacked(address(this), addressToNonce[_msgSender()]++)
@@ -264,7 +280,7 @@ contract Instrument is IInstrument, Context {
         }
     }
 
-    function marketOrder(OrderType orderType, uint256 qty)
+    function marketOrder(bool toBuy, uint256 qty)
         external
         override(IInstrument)
     {

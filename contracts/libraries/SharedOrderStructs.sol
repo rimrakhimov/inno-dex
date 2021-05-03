@@ -26,8 +26,26 @@ library OrderLib {
         self.orderType = mOrder.orderType;
     }
 
-    function copyToMemory(Order storage self) internal view returns (Order memory) {
-        Order memory order = Order(self.id, self.price, self.qty, self.bidder, self.orderType);
+    function copyToMemory(Order storage self)
+        internal
+        view
+        returns (Order memory)
+    {
+        Order memory order =
+            Order(self.id, self.price, self.qty, self.bidder, self.orderType);
         return order;
+    }
+
+    function equal(Order memory self, Order memory another)
+        internal
+        pure
+        returns (bool)
+    {
+        return
+            self.id == another.id &&
+            self.price == another.price &&
+            self.qty == another.qty &&
+            self.bidder == another.bidder &&
+            self.orderType == another.orderType;
     }
 }

@@ -10,6 +10,7 @@ library IterableUintToOrderSetMapping {
 
     struct Mapping {
         uint256[] keys;
+        function (uint, uint) pure internal returns (bool) comparator;
         mapping(uint256 => OrderSet) values;
         mapping(uint256 => uint256) indexOf;
     }
@@ -19,7 +20,7 @@ library IterableUintToOrderSetMapping {
         view
         returns (bool)
     {
-        return self.values[key].empty();
+        return !self.values[key].empty();
     }
 
     function size(Mapping storage self) internal view returns (uint256) {
@@ -39,15 +40,6 @@ library IterableUintToOrderSetMapping {
         return self.values[key];
     }
 
-    // function getKeys(Mapping storage self)
-    //     internal
-    //     view
-    //     returns (uint256[] memory)
-    // {
-    //     return self.keys;
-
-    // }
-
     function getSortedKeys(Mapping storage self)
         internal
         view
@@ -56,11 +48,10 @@ library IterableUintToOrderSetMapping {
         return self.keys;
     }
 
-    function insert(
-        Mapping storage self,
-        Order memory order,
-        bool desc
-    ) internal returns (bool replaced) {
+    function insert(Mapping storage self, Order memory order)
+        internal
+        returns (bool replaced)
+    {
         uint256 key = order.price;
         if (self.values[key].member(order.id)) {
             self.values[key].insert(order);
@@ -75,8 +66,8 @@ library IterableUintToOrderSetMapping {
 
     function remove(
         Mapping storage self,
-        bytes32 orderId,
-        uint256 price
+        uint256 price,
+        bytes32 orderId
     ) internal returns (bool removed) {
         if (self.values[price].member(orderId)) {
             self.values[price].remove(orderId);
@@ -101,7 +92,7 @@ library IterableUintToOrderSetMapping {
             return;
         }
 
-        if (self.keys[index] < key) {
+        if (self.comparator(self.keys[index], key)) {
             insertKey(self, key, index + 1);
         } else {
             shiftKeysRight(self, index);
