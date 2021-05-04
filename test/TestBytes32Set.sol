@@ -41,6 +41,21 @@ contract TestBytes32Set {
         Assert.isFalse(set.member(elem2), "Element not in a set should not be a `member` of the set");
     }
 
+    function testAny() external {
+        set.insert(elem1);
+        bytes32 e = set.any();
+        Assert.equal(e, elem1, "As only one element is in the set, it should be returned");
+
+        set.insert(elem2);
+        e = set.any();
+        bool isInserted = (e == elem1 || e == elem2);
+        Assert.isTrue(isInserted, "Any of two inserted elements should be returned");
+
+        set.remove(elem1);
+        e = set.any();
+        Assert.equal(e, elem2, "As only one element left after removing, it should be returned");
+    }
+
     function testInsertedElementsIncreaseSize() external {
         set.insert(elem1);
         Assert.equal(set.size(), 1, "One element has been inserted in the set");

@@ -26,6 +26,12 @@ library Bytes32SetLib {
         return self.indexOf[elem] > 0;
     }
 
+    // Returns some element from the set
+    function any(Bytes32Set storage self) internal view returns (bytes32) {
+        require(!empty(self), "The set is empty");
+        return self.items[0];
+    }
+
     // Returns array of elements from the set.
     function toStorageArray(Bytes32Set storage self)
         internal
@@ -37,9 +43,7 @@ library Bytes32SetLib {
 
     // Adds an element to the set.
     // If an element already exists in the set, the set remains the same.
-    function insert(Bytes32Set storage self, bytes32 elem)
-        internal
-    {
+    function insert(Bytes32Set storage self, bytes32 elem) internal {
         if (!member(self, elem)) {
             self.items.push(elem);
 
@@ -74,7 +78,7 @@ library Bytes32SetLib {
         uint256 setSize = self.items.length;
         while (setSize > 0) {
             bytes32 elem = self.items[setSize - 1];
-        
+
             delete self.indexOf[elem];
             self.items.pop();
 
