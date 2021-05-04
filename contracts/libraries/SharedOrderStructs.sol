@@ -17,6 +17,12 @@ struct OrderBookQty {
     uint256 qty;
 }
 
+struct OrderBookRecord {
+    uint256 price;
+    uint256 qty;
+    OrderType orderType;
+}
+
 library OrderLib {
     function copyFromMemory(Order storage self, Order memory mOrder) internal {
         self.id = mOrder.id;
