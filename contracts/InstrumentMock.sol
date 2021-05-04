@@ -77,6 +77,14 @@ contract Instrument is IInstrument, Context {
     {
         return Metadata(_asset1, _asset2, _priceStep, getName());
     }
+    
+    function getSpotPrice(bool asks) external view returns (uint256) {
+        if (asks) {
+            return OrderBook(_asksOrderBook).empty() ? 0 : OrderBook(_asksOrderBook).getSpotPrice();
+        } else {
+            return OrderBook(_bidsOrderBook).empty() ? 0 : OrderBook(_bidsOrderBook).getSpotPrice();
+        }
+    }
 
     function getOrder(bytes32 orderId) external view returns (Order memory) {
         OrderBook orderBook;
