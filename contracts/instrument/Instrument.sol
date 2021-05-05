@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.3;
-// 443 000, 450 000 после РЭШ
+
 import "./IInstrument.sol";
+import "./OrderBook.sol";
 import "../ERC20/extensions/IERC20Metadata.sol";
-import "./OrderBookNew.sol";
 import "../utils/Context.sol";
 import "../libraries/SharedOrderStructs.sol";
 
-contract Instrument is IInstrument, Context {
+abstract contract Instrument is IInstrument, Context {
     address _asset1;
     address _asset2;
     uint256 _priceStep;
@@ -26,8 +26,8 @@ contract Instrument is IInstrument, Context {
         _asset2 = asset2Address;
         _priceStep = priceStep;
 
-        _bidsOrderBook = address(new OrderBookNew(OrderType.Sell));
-        _asksOrderBook = address(new OrderBookNew(OrderType.Buy));
+        _bidsOrderBook = address(new OrderBook(OrderType.Sell));
+        _asksOrderBook = address(new OrderBook(OrderType.Buy));
     }
 
     function getName()

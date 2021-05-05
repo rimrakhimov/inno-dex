@@ -1,6 +1,6 @@
 const truffleAssert = require('truffle-assertions');
 
-const OrderBook = artifacts.require("OrderBookNew");
+const OrderBook = artifacts.require("OrderBook");
 
 const id1 = "0xabababababababababababababababababababababababababababababababab";
 const id2 = "0xbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbc";
