@@ -1,5 +1,3 @@
-const { assert } = require("node:console");
-
 const ERC20 = artifacts.require("ERC20Mintable");
 // const Asset2 = artifacts.require("ERC20Mintable");
 const Instrument = artifacts.require("Instrument");
@@ -20,7 +18,7 @@ contract("Instrument test", async accounts => {
         // erc20factoryInstance = await erc20factory.new()
         // await ContractInstance.setParent(erc20factoryInstance.address)
 
-        let t = await asset1Instance.symbol().call();
+        let t = await asset1Instance.symbol.call();
         assert.equal(t, "TST1", "Invalid symbol");
     });
 

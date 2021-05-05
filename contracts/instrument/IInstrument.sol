@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.3;
 
-import "./libraries/SharedOrderStructs.sol";
+import "../libraries/SharedOrderStructs.sol";
 
 interface IInstrument {
     struct Metadata {
@@ -21,6 +21,8 @@ interface IInstrument {
     function getSecondAssetAddress() external view returns (address);
 
     function getMetadata() external view returns (Metadata memory);
+
+    // function getOrderIds(address bidder) external view returns (M)
 
     function limitOrder(
         bool toBuy,
