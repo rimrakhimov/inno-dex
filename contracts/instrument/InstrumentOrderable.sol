@@ -78,7 +78,43 @@ abstract contract InstrumentOrderable is
     function marketOrder(bool toBuy, uint256 qty)
         external
         override(IInstrumentOrderable)
-    {}
+    {
+        bytes32 orderId =
+            keccak256(
+                abi.encodePacked(_msgSender(), _addressToNonce[_msgSender()]++)
+            );
+        OrderType orderType = toBuy ? OrderType.Buy : OrderType.Sell;
+        uint256 price = toBuy ? type(uint256).max : 0;
+        Order memory order =
+            Order(orderId, price, qty, _msgSender(), orderType);
+
+        emit OrderPlaced(order.bidder, order.id, order.orderType, 0, order.qty);
+
+        bool executed;
+        if (toBuy) {
+            uint256 initialSpotPrice = _getSpotPrice(_bidsOrderBook);
+            executed = _executeBuyOrder(order);
+            uint256 finalSpotPrice = _getSpotPrice(_bidsOrderBook);
+            _emitSpotPriceChanged(
+                OrderType.Sell,
+                initialSpotPrice,
+                finalSpotPrice
+            );
+        } else {
+            uint256 initialSpotPrice = _getSpotPrice(_asksOrderBook);
+            executed = _executeSellOrder(order);
+            uint256 finalSpotPrice = _getSpotPrice(_asksOrderBook);
+            _emitSpotPriceChanged(
+                OrderType.Sell,
+                initialSpotPrice,
+                finalSpotPrice
+            );
+        }
+
+        if (!executed) {
+            revert("Order cannot be executed");
+        }
+    }
 
     function cancelOrder(bytes32 orderId)
         external
@@ -144,6 +180,7 @@ abstract contract InstrumentOrderable is
             order.qty -= qty;
             nextOrder.qty -= qty;
 
+            _updatedOrderIds(nextOrder);
             _updateOrderBook(buyAssetOrderBook, nextOrder);
 
             _emitOrderExecuted(order);
@@ -192,6 +229,7 @@ abstract contract InstrumentOrderable is
             order.qty -= qty;
             nextOrder.qty -= qty;
 
+            _updatedOrderIds(nextOrder);
             _updateOrderBook(buyAssetOrderBook, nextOrder);
 
             _emitOrderExecuted(order);
@@ -216,6 +254,11 @@ abstract contract InstrumentOrderable is
             initialSpotPrice,
             finalSpotPrice
         );
+    }
+
+    function _updatedOrderIds(Order memory updatedOrder) internal {
+        if (updatedOrder.qty == 0)
+            _addressToOrderIds[updatedOrder.bidder].remove(updatedOrder.id);
     }
 
     function _updateOrderBook(OrderBook orderBook, Order memory updatedOrder)

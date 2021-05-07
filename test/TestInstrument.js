@@ -215,6 +215,46 @@ contract("Instrument", async accounts => {
         orderBookRecords = await instrumentInstance.getOrderBookRecords.call();
         assert.equal(orderBookRecords.length, 0, "Invalid length of order book records after the third remove");
     });
+
+    it("should correctly return added order ids per user", async () => {
+        const toBuy1 = true; const price1 = 900; const qty1 = 10; const orderType1 = _getOrderType(toBuy1);
+        const toBuy2 = true; const price2 = 1000; const qty2 = 5; const orderType2 = _getOrderType(toBuy2);
+        const toBuy3 = false; const price3 = 1200; const qty3 = 20; const orderType3 = _getOrderType(toBuy3);
+
+        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
+
+        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+
+        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
+
+        let orderIds = await instrumentInstance.getOrderIds.call(accounts[0]);
+        assert.equal(orderIds.length, 3, "Incorrect number of order ids");
+        assert.isTrue(orderIds.includes(orderId1), "First order id has not been returned");
+        assert.isTrue(orderIds.includes(orderId2), "Second order id has not been returned");
+        assert.isTrue(orderIds.includes(orderId3), "Third order id has not been returned");
+    });
+
+    it("should remove executed orders from user order ids", async () => {
+        const toBuy1 = true; const price1 = 900; const qty1 = 10; const orderType1 = _getOrderType(toBuy1);
+        const toBuy2 = true; const price2 = 1000; const qty2 = 5; const orderType2 = _getOrderType(toBuy2);
+        const toBuy3 = false; const price3 = 800; const qty3 = 20; const orderType3 = _getOrderType(toBuy3);
+
+        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
+
+        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+
+        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
+
+        let orderIds = await instrumentInstance.getOrderIds.call(accounts[0]);
+        assert.equal(orderIds.length, 1, "Incorrect number of order ids");
+        assert.isTrue(orderIds.includes(orderId3), "Incorrect order id has been returned");
+    });
 });
 
 function _getOrderType(toBuy) {
