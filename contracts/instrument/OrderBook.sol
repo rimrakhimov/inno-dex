@@ -19,7 +19,11 @@ contract OrderBook {
 
     constructor(OrderType orderBookType) {
         _orderBookType = orderBookType;
-        _orderIdsByPrice.comparator = _getComparator(orderBookType);
+        _orderIdsByPrice.desc = _isDescending();
+    }
+
+    function getOrderBookType() external view returns (OrderType) {
+        return _orderBookType;
     }
 
     function empty() public view returns (bool) {
@@ -114,17 +118,6 @@ contract OrderBook {
 
     function _isDescending() internal view returns (bool) {
         return (_orderBookType == OrderType.Sell);
-    }
-
-    function _getComparator(OrderType orderBookType)
-        internal
-        pure
-        returns (function(uint256, uint256) internal pure returns (bool) f)
-    {
-        return
-            (orderBookType == OrderType.Sell)
-                ? Comparators.greater
-                : Comparators.less;
     }
 
     function _reverseArray(OrderBookRecord[] memory array)

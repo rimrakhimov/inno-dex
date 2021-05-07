@@ -8,18 +8,18 @@ struct Bytes32Set {
 }
 
 library Bytes32SetLib {
-    function size(Bytes32Set storage self) internal view returns (uint256) {
+    function size(Bytes32Set storage self) public view returns (uint256) {
         return self.items.length;
     }
 
     // Returns `true` if set does not contain any element, or `false` otherwise.
-    function empty(Bytes32Set storage self) internal view returns (bool) {
+    function empty(Bytes32Set storage self) public view returns (bool) {
         return size(self) == 0;
     }
 
     // Check whether an element with exists in the set.
     function member(Bytes32Set storage self, bytes32 elem)
-        internal
+        public
         view
         returns (bool)
     {
@@ -27,14 +27,14 @@ library Bytes32SetLib {
     }
 
     // Returns some element from the set
-    function any(Bytes32Set storage self) internal view returns (bytes32) {
+    function any(Bytes32Set storage self) external view returns (bytes32) {
         require(!empty(self), "The set is empty");
         return self.items[0];
     }
 
     // Returns array of elements from the set.
     function toStorageArray(Bytes32Set storage self)
-        internal
+        external
         view
         returns (bytes32[] storage)
     {
@@ -43,7 +43,7 @@ library Bytes32SetLib {
 
     // Adds an element to the set.
     // If an element already exists in the set, the set remains the same.
-    function insert(Bytes32Set storage self, bytes32 elem) internal {
+    function insert(Bytes32Set storage self, bytes32 elem) external {
         if (!member(self, elem)) {
             self.items.push(elem);
 
@@ -56,7 +56,7 @@ library Bytes32SetLib {
     // If specified element does not exist returns `false`, otherwise returns `true`.
     // Does not preserve order of elements, as a last element takes place of the element to be removed.
     function remove(Bytes32Set storage self, bytes32 elem)
-        internal
+        external
         returns (bool removed)
     {
         if (member(self, elem)) {
@@ -74,7 +74,7 @@ library Bytes32SetLib {
         }
     }
 
-    function clear(Bytes32Set storage self) internal {
+    function clear(Bytes32Set storage self) external {
         uint256 setSize = self.items.length;
         while (setSize > 0) {
             bytes32 elem = self.items[setSize - 1];

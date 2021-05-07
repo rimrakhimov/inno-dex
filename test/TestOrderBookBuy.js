@@ -1,5 +1,7 @@
 const truffleAssert = require('truffle-assertions');
 
+const Bytes32SetLib = artifacts.require("Bytes32SetLib");
+const IterableSortedUintToBytes32SetMapping = artifacts.require("IterableSortedUintToBytes32SetMapping");
 const OrderBook = artifacts.require("OrderBook");
 
 const id1 = "0xabababababababababababababababababababababababababababababababab";
@@ -15,6 +17,15 @@ var orderBookInstance;
 
 contract("BuyOrderBook", async accounts => {
     const orderBookType = 0; // Buy
+
+    before(async () => {
+        const bytes32SetLibInstance = await Bytes32SetLib.deployed();
+        const iterableSortedUintToBytes32SetMappingInstance = await IterableSortedUintToBytes32SetMapping.deployed();
+
+        OrderBook.link("Bytes32SetLib", bytes32SetLibInstance.address);
+        OrderBook.link("IterableSortedUintToBytes32SetMapping", iterableSortedUintToBytes32SetMappingInstance.address);
+    });
+
     beforeEach(async () => {
         orderBookInstance = await OrderBook.new(orderBookType, { from: accounts[0] });
     });

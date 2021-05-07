@@ -21,8 +21,8 @@ contract TestIterableSortedUintToBytes32SetMapping {
     IterableSortedUintToBytes32SetMapping.Mapping descendingMapping;
 
     constructor() {
-        descendingMapping.comparator = Comparators.greater;
-        ascendingMapping.comparator = Comparators.less;
+        descendingMapping.desc = true;
+        ascendingMapping.desc = false;
     }
 
     function beforeEach() external {

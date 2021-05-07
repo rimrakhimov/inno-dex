@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 import "./Bytes32Set.sol";
+import "./Comparators.sol";
 
 pragma solidity ^0.8.3;
 
@@ -11,27 +12,27 @@ library IterableSortedUintToBytes32SetMapping {
         uint256[] keys;
         mapping(uint256 => Bytes32Set) values;
         mapping(uint256 => uint256) indexOf;
-        function(uint256, uint256) internal pure returns (bool) comparator;
+        bool desc;
     }
 
     function member(Mapping storage self, uint256 key)
-        internal
+        public
         view
         returns (bool)
     {
         return self.indexOf[key] > 0;
     }
 
-    function size(Mapping storage self) internal view returns (uint256) {
+    function size(Mapping storage self) public view returns (uint256) {
         return self.keys.length;
     }
 
-    function empty(Mapping storage self) internal view returns (bool) {
+    function empty(Mapping storage self) external view returns (bool) {
         return size(self) == 0;
     }
 
     function get(Mapping storage self, uint256 key)
-        internal
+        external
         view
         returns (Bytes32Set storage)
     {
@@ -40,7 +41,7 @@ library IterableSortedUintToBytes32SetMapping {
     }
 
     function getSortedKeys(Mapping storage self)
-        internal
+        external
         view
         returns (uint256[] storage)
     {
@@ -48,7 +49,7 @@ library IterableSortedUintToBytes32SetMapping {
     }
 
     function addKey(Mapping storage self, uint256 key)
-        internal
+        external
         returns (bool added)
     {
         if (!member(self, key)) {
@@ -57,10 +58,10 @@ library IterableSortedUintToBytes32SetMapping {
         }
     }
 
-    // Removed key from the mapping. 
+    // Removed key from the mapping.
     // Value corresponding to the key is cleared.
     function removeKey(Mapping storage self, uint256 key)
-        internal
+        external
         returns (bool removed)
     {
         if (member(self, key)) {
@@ -70,7 +71,7 @@ library IterableSortedUintToBytes32SetMapping {
         }
     }
 
-    /******************************** internal ********************************/
+    /******************************** private ********************************/
 
     // TODO: use binary search to increase performance
     function _insertKey(
@@ -85,7 +86,7 @@ library IterableSortedUintToBytes32SetMapping {
             return;
         }
 
-        if (self.comparator(self.keys[index], key)) {
+        if (_getComparator(self.desc)(self.keys[index], key)) {
             _insertKey(self, key, index + 1);
         } else {
             _shiftKeysRight(self, index);
@@ -125,5 +126,13 @@ library IterableSortedUintToBytes32SetMapping {
             index++;
         }
         self.keys.pop();
+    }
+
+    function _getComparator(bool desc)
+        private
+        pure
+        returns (function(uint256, uint256) internal pure returns (bool))
+    {
+        return desc ? Comparators.greater : Comparators.less;
     }
 }
