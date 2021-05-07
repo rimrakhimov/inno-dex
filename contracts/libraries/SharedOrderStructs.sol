@@ -12,11 +12,6 @@ struct Order {
     OrderType orderType;
 }
 
-struct OrderBookQty {
-    uint256 price;
-    uint256 qty;
-}
-
 struct OrderBookRecord {
     uint256 price;
     uint256 qty;
@@ -40,18 +35,5 @@ library OrderLib {
         Order memory order =
             Order(self.id, self.price, self.qty, self.bidder, self.orderType);
         return order;
-    }
-
-    function equal(Order memory self, Order memory another)
-        internal
-        pure
-        returns (bool)
-    {
-        return
-            self.id == another.id &&
-            self.price == another.price &&
-            self.qty == another.qty &&
-            self.bidder == another.bidder &&
-            self.orderType == another.orderType;
     }
 }
