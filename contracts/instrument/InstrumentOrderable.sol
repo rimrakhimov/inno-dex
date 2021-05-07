@@ -174,7 +174,7 @@ abstract contract InstrumentOrderable is
             uint256 qty = _min(order.qty, nextOrder.qty);
 
             sellAsset.transferFrom(order.bidder, nextOrder.bidder, qty * price);
-            buyAsset.transferFrom(address(this), order.bidder, qty);
+            buyAsset.transfer(order.bidder, qty);
 
             emit OrderPartiallyExecuted(order.id, qty, price);
             emit OrderPartiallyExecuted(nextOrder.id, qty, price);
@@ -223,7 +223,7 @@ abstract contract InstrumentOrderable is
             uint256 qty = _min(order.qty, nextOrder.qty);
 
             sellAsset.transferFrom(order.bidder, nextOrder.bidder, qty);
-            buyAsset.transferFrom(address(this), order.bidder, qty * price);
+            buyAsset.transfer(order.bidder, qty * price);
 
             emit OrderPartiallyExecuted(order.id, qty, price);
             emit OrderPartiallyExecuted(nextOrder.id, qty, price);

@@ -161,6 +161,55 @@ contract("Instrument", async accounts => {
         _assertEqualOrderBookRecord(orderBookRecords[0], price3, qty3 - (qty2 + qty1), orderType3, "First");
     });
 
+    it("should execute available selling orders, add remainder to buying order book, and emit correct events", async () => {
+        const flags = 0;
+        const toBuy1 = false; const price1 = 900; const qty1 = 10; const orderType1 = _getOrderType(toBuy1);
+        const toBuy2 = false; const price2 = 1000; const qty2 = 5; const orderType2 = _getOrderType(toBuy2);
+        const toBuy3 = true; const price3 = 1200; const qty3 = 20; const orderType3 = _getOrderType(toBuy3);
+
+        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, flags, { from: accounts[0] });
+
+        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, flags, { from: accounts[0] });
+
+        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, flags, { from: accounts[0] });
+        let result = await instrumentInstance.limitOrder(toBuy3, price3, qty3, flags, { from: accounts[0] });
+
+        truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
+            orderId: orderId1,
+            qty: web3.utils.toBN(qty1),
+        });
+        truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
+            orderId: orderId2,
+            qty: web3.utils.toBN(qty2),
+        });
+        truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
+            orderId: orderId3,
+            qty: web3.utils.toBN(qty1),
+        });
+        truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
+            orderId: orderId3,
+            qty: web3.utils.toBN(qty2),
+        });
+
+        truffleAssert.eventEmitted(result, 'OrderExecuted', { orderId: orderId1 });
+        truffleAssert.eventEmitted(result, 'OrderExecuted', { orderId: orderId2 });
+
+        truffleAssert.eventEmitted(result, 'SpotPriceChanged', {
+            orderBookType: web3.utils.toBN(orderType3),
+            newPrice: web3.utils.toBN(price3),
+        });
+        truffleAssert.eventEmitted(result, 'SpotPriceChanged', {
+            orderBookType: web3.utils.toBN(orderType1),
+            newPrice: web3.utils.toBN(0),
+        });
+
+        let orderBookRecords = await instrumentInstance.getOrderBookRecords.call();
+        assert.equal(orderBookRecords.length, 1, "Incorrect number of order book records");
+        _assertEqualOrderBookRecord(orderBookRecords[0], price3, qty3 - (qty2 + qty1), orderType3, "First");
+    });
+
     // it("should correctly update spot price", async () => {
 
     // });
