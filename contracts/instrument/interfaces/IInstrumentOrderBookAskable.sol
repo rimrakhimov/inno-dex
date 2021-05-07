@@ -12,6 +12,11 @@ interface IInstrumentOrderBookAskable {
         view
         returns (OrderBookRecord[] memory);
 
+    function getSpotPrice(OrderType orderBookType)
+        external
+        view
+        returns (uint256);
+
     function getOrderIds(address bidder)
         external
         view

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.3;
 
-import "./instrument/IInstrument.sol";
+import "./instrument/interfaces/IInstrument.sol";
 import "./ERC20/extensions/IERC20Metadata.sol";
 
 contract InnoDex {

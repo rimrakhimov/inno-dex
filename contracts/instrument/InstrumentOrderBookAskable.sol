@@ -42,6 +42,16 @@ abstract contract InstrumentOrderBookAskable is
         return _concatArrays(askRecords, bidRecords);
     }
 
+    function getSpotPrice(OrderType orderType)
+        external
+        view
+        override(IInstrumentOrderBookAskable)
+        returns (uint256)
+    {
+        OrderBook orderBook = (orderType == OrderType.Sell) ? OrderBook(_bidsOrderBook) : OrderBook(_asksOrderBook);
+        return orderBook.empty() ? 0 : orderBook.getSpotPrice();
+    }
+
     function getOrderIds(address bidder)
         external
         view
