@@ -6,8 +6,9 @@ import "../libraries/Bytes32Set.sol";
 import "../libraries/IterableSortedUintToBytes32SetMapping.sol";
 import "../libraries/Comparators.sol";
 import "../libraries/SharedOrderStructs.sol";
+import "../utils/Ownable.sol";
 
-contract OrderBook {
+contract OrderBook is Ownable {
     using OrderLib for Order;
     using Bytes32SetLib for Bytes32Set;
     using IterableSortedUintToBytes32SetMapping for IterableSortedUintToBytes32SetMapping.Mapping;
@@ -76,7 +77,11 @@ contract OrderBook {
         return _orderIdToOrder[orderId];
     }
 
-    function add(Order memory order) external returns (bool modified) {
+    function add(Order memory order)
+        external
+        onlyOwner
+        returns (bool modified)
+    {
         require(
             order.orderType == _orderBookType,
             "Order type does not correspond to order book type"
@@ -98,7 +103,7 @@ contract OrderBook {
         _orderIdToOrder[order.id].copyFromMemory(order);
     }
 
-    function remove(bytes32 orderId) external returns (bool removed) {
+    function remove(bytes32 orderId) external onlyOwner returns (bool removed) {
         if (member(orderId)) {
             uint256 price = _orderIdToOrder[orderId].price;
             delete _orderIdToOrder[orderId];
