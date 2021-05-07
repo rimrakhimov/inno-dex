@@ -26,14 +26,4 @@ library OrderLib {
         self.bidder = mOrder.bidder;
         self.orderType = mOrder.orderType;
     }
-
-    function copyToMemory(Order storage self)
-        internal
-        view
-        returns (Order memory)
-    {
-        Order memory order =
-            Order(self.id, self.price, self.qty, self.bidder, self.orderType);
-        return order;
-    }
 }
