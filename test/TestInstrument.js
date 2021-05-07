@@ -56,7 +56,7 @@ contract("Instrument", async accounts => {
 
         const orderId = await instrumentInstance.limitOrder.call(toBuy, price, qty, flags, { from: accounts[0] });
 
-        let result = await instrumentInstance.limitOrder(toBuy, price, qty, orderType, { from: accounts[0] });
+        let result = await instrumentInstance.limitOrder(toBuy, price, qty, flags, { from: accounts[0] });
         truffleAssert.eventEmitted(result, 'OrderPlaced', {
             bidder: accounts[0],
             orderId: orderId,
@@ -76,7 +76,7 @@ contract("Instrument", async accounts => {
 
         const orderId = await instrumentInstance.limitOrder.call(toBuy, price, qty, flags, { from: accounts[0] });
 
-        let result = await instrumentInstance.limitOrder(toBuy, price, qty, orderType, { from: accounts[0] });
+        let result = await instrumentInstance.limitOrder(toBuy, price, qty, flags, { from: accounts[0] });
         truffleAssert.eventEmitted(result, 'OrderPlaced', {
             bidder: accounts[0],
             orderId: orderId,
@@ -98,11 +98,11 @@ contract("Instrument", async accounts => {
         const toBuy4 = false; const price4 = 1200; const qty4 = 4; const orderType4 = _getOrderType(toBuy4);
         const toBuy5 = false; const price5 = 1100; const qty5 = 5; const orderType5 = _getOrderType(toBuy5);
 
-        await instrumentInstance.limitOrder(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy4, price4, qty4, orderType4, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy5, price5, qty5, orderType5, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy3, price3, qty3, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy4, price4, qty4, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy5, price5, qty5, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, flags, { from: accounts[0] });
 
         let orderBookRecords = await instrumentInstance.getOrderBookRecords.call();
         assert.equal(orderBookRecords.length, 4, "Incorrect number of order book records");
@@ -118,14 +118,14 @@ contract("Instrument", async accounts => {
         const toBuy2 = true; const price2 = 1000; const qty2 = 5; const orderType2 = _getOrderType(toBuy2);
         const toBuy3 = false; const price3 = 800; const qty3 = 20; const orderType3 = _getOrderType(toBuy3);
 
-        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
+        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, flags, { from: accounts[0] });
 
-        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, flags, { from: accounts[0] });
 
-        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
-        let result = await instrumentInstance.limitOrder(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
+        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, flags, { from: accounts[0] });
+        let result = await instrumentInstance.limitOrder(toBuy3, price3, qty3, flags, { from: accounts[0] });
 
         truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
             orderId: orderId1,
@@ -166,18 +166,19 @@ contract("Instrument", async accounts => {
     // });
 
     it("should be able to cancel orders, return correct order book records, and emit correct events", async () => {
+        const flags = 0;
         const toBuy1 = true; const price1 = 900; const qty1 = 10; const orderType1 = _getOrderType(toBuy1);
         const toBuy2 = true; const price2 = 1000; const qty2 = 5; const orderType2 = _getOrderType(toBuy2);
         const toBuy3 = true; const price3 = 900; const qty3 = 20; const orderType3 = _getOrderType(toBuy3);
 
-        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
+        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, flags, { from: accounts[0] });
 
-        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, flags, { from: accounts[0] });
 
-        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
+        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy3, price3, qty3, flags, { from: accounts[0] });
 
         let result = await instrumentInstance.cancelOrder(orderId1, { from: accounts[0] });
         truffleAssert.eventEmitted(result, 'OrderCancelled', { orderId: orderId1 },
@@ -217,18 +218,19 @@ contract("Instrument", async accounts => {
     });
 
     it("should correctly return added order ids per user", async () => {
+        const flags = 0;
         const toBuy1 = true; const price1 = 900; const qty1 = 10; const orderType1 = _getOrderType(toBuy1);
         const toBuy2 = true; const price2 = 1000; const qty2 = 5; const orderType2 = _getOrderType(toBuy2);
         const toBuy3 = false; const price3 = 1200; const qty3 = 20; const orderType3 = _getOrderType(toBuy3);
 
-        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
+        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, flags, { from: accounts[0] });
 
-        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, flags, { from: accounts[0] });
 
-        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
+        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy3, price3, qty3, flags, { from: accounts[0] });
 
         let orderIds = await instrumentInstance.getOrderIds.call(accounts[0]);
         assert.equal(orderIds.length, 3, "Incorrect number of order ids");
@@ -238,18 +240,19 @@ contract("Instrument", async accounts => {
     });
 
     it("should remove executed orders from user order ids", async () => {
+        const flags = 0;
         const toBuy1 = true; const price1 = 900; const qty1 = 10; const orderType1 = _getOrderType(toBuy1);
         const toBuy2 = true; const price2 = 1000; const qty2 = 5; const orderType2 = _getOrderType(toBuy2);
         const toBuy3 = false; const price3 = 800; const qty3 = 20; const orderType3 = _getOrderType(toBuy3);
 
-        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy1, price1, qty1, orderType1, { from: accounts[0] });
+        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, flags, { from: accounts[0] });
 
-        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy2, price2, qty2, orderType2, { from: accounts[0] });
+        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, flags, { from: accounts[0] });
 
-        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
-        await instrumentInstance.limitOrder(toBuy3, price3, qty3, orderType3, { from: accounts[0] });
+        const orderId3 = await instrumentInstance.limitOrder.call(toBuy3, price3, qty3, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy3, price3, qty3, flags, { from: accounts[0] });
 
         let orderIds = await instrumentInstance.getOrderIds.call(accounts[0]);
         assert.equal(orderIds.length, 1, "Incorrect number of order ids");
