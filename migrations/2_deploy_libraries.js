@@ -3,7 +3,7 @@ const IterableSortedUintToBytes32SetMapping = artifacts.require("IterableSortedU
 
 module.exports = function (deployer) {
     deployer.deploy(Bytes32SetLib).then(function () {
-        IterableSortedUintToBytes32SetMapping.link("Bytes32SetLib", Bytes32SetLib.address);
+        IterableSortedUintToBytes32SetMapping.link(Bytes32SetLib);
         return deployer.deploy(IterableSortedUintToBytes32SetMapping);
     });
 };
