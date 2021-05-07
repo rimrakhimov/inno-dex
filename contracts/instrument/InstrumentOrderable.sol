@@ -78,6 +78,7 @@ abstract contract InstrumentOrderable is
     function marketOrder(bool toBuy, uint256 qty)
         external
         override(IInstrumentOrderable)
+        returns (bytes32)
     {
         bytes32 orderId =
             keccak256(
@@ -114,6 +115,8 @@ abstract contract InstrumentOrderable is
         if (!executed) {
             revert("Order cannot be executed");
         }
+
+        return order.id;
     }
 
     function cancelOrder(bytes32 orderId)

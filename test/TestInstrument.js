@@ -255,6 +255,65 @@ contract("Instrument", async accounts => {
         assert.equal(orderIds.length, 1, "Incorrect number of order ids");
         assert.isTrue(orderIds.includes(orderId3), "Incorrect order id has been returned");
     });
+
+    it("should correctly execute market order", async () => {
+        const flags = 0;
+        const toBuy1 = true; const price1 = 900; const qty1 = 10; const orderType1 = _getOrderType(toBuy1);
+        const toBuy2 = true; const price2 = 1000; const qty2 = 5; const orderType2 = _getOrderType(toBuy2);
+        const toBuy3 = false; const qty3 = 12; const orderType3 = _getOrderType(toBuy3);
+
+        const orderId1 = await instrumentInstance.limitOrder.call(toBuy1, price1, qty1, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy1, price1, qty1, flags, { from: accounts[0] });
+
+        const orderId2 = await instrumentInstance.limitOrder.call(toBuy2, price2, qty2, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy2, price2, qty2, flags, { from: accounts[0] });
+
+        const orderId3 = await instrumentInstance.marketOrder.call(toBuy3, qty3, { from: accounts[0] });
+        let result = await instrumentInstance.marketOrder(toBuy3, qty3, { from: accounts[0] });
+        truffleAssert.eventEmitted(result, 'OrderPlaced', {
+            orderId: orderId3,
+            bidder: accounts[0],
+            orderType: web3.utils.toBN(orderType3),
+            price: web3.utils.toBN(0),
+            qty: web3.utils.toBN(qty3),
+        }, "OrderPlaced event has not been emitted");
+
+        truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
+            orderId: orderId1,
+            qty: web3.utils.toBN(qty3 - qty2),
+            price: web3.utils.toBN(price1),
+        }, "OrderPartiallyExecuted event has not been emitted for the first order");
+        truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
+            orderId: orderId2,
+            qty: web3.utils.toBN(qty2),
+            price: web3.utils.toBN(price2),
+        }, "OrderPartiallyExecuted event has not been emitted for the second order");
+        truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
+            orderId: orderId3,
+            qty: web3.utils.toBN(qty2),
+            price: web3.utils.toBN(price2),
+        }, "OrderPartiallyExecuted event has not been emitted for the third order when second order executed");
+        truffleAssert.eventEmitted(result, 'OrderPartiallyExecuted', {
+            orderId: orderId3,
+            qty: web3.utils.toBN(qty3 - qty2),
+            price: web3.utils.toBN(price1),
+        }, "OrderPartiallyExecuted event has not been emitted for the third order when first order executed");
+
+        truffleAssert.eventEmitted(result, 'OrderExecuted', {
+            orderId: orderId2,
+        }, "OrderExecuted event has not been emitted for the second order");
+        truffleAssert.eventEmitted(result, 'OrderExecuted', {
+            orderId: orderId3,
+        }, "OrderExecuted event has not been emitted for the third order");
+
+        let orderBookRecords = await instrumentInstance.getOrderBookRecords.call();
+        assert.equal(orderBookRecords.length, 1, "Incorrect number of order book records");
+        _assertEqualOrderBookRecord(orderBookRecords[0], price1, qty1 - (qty3 - qty2), orderType1, "First");
+
+        let orderIds = await instrumentInstance.getOrderIds.call(accounts[0]);
+        assert.equal(orderIds.length, 1, "Incorrect number of order ids");
+        assert.isTrue(orderIds.includes(orderId1), "First order is not in order ids list");
+    });
 });
 
 function _getOrderType(toBuy) {

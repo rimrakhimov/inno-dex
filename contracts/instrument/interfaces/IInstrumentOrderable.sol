@@ -12,7 +12,7 @@ interface IInstrumentOrderable {
         uint256 flags
     ) external returns (bytes32);
 
-    function marketOrder(bool toBuy, uint256 qty) external;
+    function marketOrder(bool toBuy, uint256 qty) external returns (bytes32);
 
     function cancelOrder(bytes32 id) external;
 
