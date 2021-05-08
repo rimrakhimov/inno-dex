@@ -366,6 +366,42 @@ contract("Instrument", async accounts => {
         assert.equal(orderIds.length, 1, "Incorrect number of order ids");
         assert.isTrue(orderIds.includes(orderId1), "First order is not in order ids list");
     });
+
+    it("should return tokens back to bidder when sell order is cancelled", async () => {
+        const flags = 0;
+        const toBuy = false; const price = 900; const qty = 10; const orderType = _getOrderType(toBuy);
+
+        const initialBalance = await tokenInstance.balanceOf.call(accounts[0]);
+
+        const orderId = await instrumentInstance.limitOrder.call(toBuy, price, qty, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy, price, qty, flags, { from: accounts[0] });
+
+        let balance = await tokenInstance.balanceOf.call(accounts[0]);
+        assert.equal(balance, initialBalance - qty, "Making an order changed bidder's balance incorrectly");
+
+        await instrumentInstance.cancelOrder(orderId, { from: accounts[0] });
+
+        balance = await tokenInstance.balanceOf.call(accounts[0]);
+        assert.equal(balance.toString(), initialBalance.toString(), "Cancelling order did not returned tokens back");
+    });
+
+    it("should return tokens back to bidder when buy order is cancelled", async () => {
+        const flags = 0;
+        const toBuy = true; const price = 900; const qty = 10; const orderType = _getOrderType(toBuy);
+
+        const initialBalance = await wethInstance.balanceOf.call(accounts[0]);
+
+        const orderId = await instrumentInstance.limitOrder.call(toBuy, price, qty, flags, { from: accounts[0] });
+        await instrumentInstance.limitOrder(toBuy, price, qty, flags, { from: accounts[0] });
+
+        let balance = await wethInstance.balanceOf.call(accounts[0]);
+        assert.equal(balance, initialBalance - (qty * price), "Making an order changed bidder's balance incorrectly");
+
+        await instrumentInstance.cancelOrder(orderId, { from: accounts[0] });
+
+        balance = await wethInstance.balanceOf.call(accounts[0]);
+        assert.equal(balance.toString(), initialBalance.toString(), "Cancelling order did not returned tokens back");
+    });
 });
 
 function _getOrderType(toBuy) {

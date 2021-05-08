@@ -2,22 +2,19 @@
 pragma solidity ^0.8.3;
 
 import "./interfaces/IInstrumentMetadata.sol";
+import "./InstrumentStorage.sol";
 import "../ERC20/extensions/IERC20Metadata.sol";
 
-abstract contract InstrumentMetadata is IInstrumentMetadata {
-    address private _asset1;
-    address private _asset2;
-    uint256 private _priceStep;
-
+abstract contract InstrumentMetadata is IInstrumentMetadata, InstrumentStorage {
     constructor(
         address asset1Address,
         address asset2Address,
         uint256 priceStep
     ) {
         require(priceStep > 0, "Invalid price step");
-        _asset1 = asset1Address;
-        _asset2 = asset2Address;
-        _priceStep = priceStep;
+        setAsset1(asset1Address);
+        setAsset2(asset2Address);
+        setPriceStep(priceStep);
     }
 
     function getName()
@@ -26,8 +23,8 @@ abstract contract InstrumentMetadata is IInstrumentMetadata {
         override(IInstrumentMetadata)
         returns (string memory)
     {
-        string memory assetSym1 = IERC20Metadata(_asset1).symbol();
-        string memory assetSym2 = IERC20Metadata(_asset2).symbol();
+        string memory assetSym1 = IERC20Metadata(getAsset1()).symbol();
+        string memory assetSym2 = IERC20Metadata(getAsset2()).symbol();
         return string(abi.encodePacked(assetSym1, "/", assetSym2));
     }
 
@@ -37,7 +34,7 @@ abstract contract InstrumentMetadata is IInstrumentMetadata {
         override(IInstrumentMetadata)
         returns (uint256)
     {
-        return _priceStep;
+        return getPriceStep();
     }
 
     function getFirstAssetAddress()
@@ -46,7 +43,7 @@ abstract contract InstrumentMetadata is IInstrumentMetadata {
         override(IInstrumentMetadata)
         returns (address)
     {
-        return _asset1;
+        return getAsset1();
     }
 
     function getSecondAssetAddress()
@@ -55,7 +52,7 @@ abstract contract InstrumentMetadata is IInstrumentMetadata {
         override(IInstrumentMetadata)
         returns (address)
     {
-        return _asset2;
+        return getAsset2();
     }
 
     function getMetadata()
@@ -64,6 +61,12 @@ abstract contract InstrumentMetadata is IInstrumentMetadata {
         override(IInstrumentMetadata)
         returns (Metadata memory)
     {
-        return Metadata(_asset1, _asset2, _priceStep, getName());
+        return
+            Metadata(
+                getFirstAssetAddress(),
+                getSecondAssetAddress(),
+                getStep(),
+                getName()
+            );
     }
 }

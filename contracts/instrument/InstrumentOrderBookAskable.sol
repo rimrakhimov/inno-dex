@@ -2,13 +2,13 @@
 pragma solidity ^0.8.3;
 
 import "./interfaces/IInstrumentOrderBookAskable.sol";
-import "./InstrumentOrderBook.sol";
+import "./InstrumentStorage.sol";
 import "../libraries/SharedOrderStructs.sol";
 import "./OrderBook.sol";
 
 abstract contract InstrumentOrderBookAskable is
     IInstrumentOrderBookAskable,
-    InstrumentOrderBook
+    InstrumentStorage
 {
     using Bytes32SetLib for Bytes32Set;
 
@@ -18,8 +18,8 @@ abstract contract InstrumentOrderBookAskable is
         override(IInstrumentOrderBookAskable)
         returns (Order memory)
     {
-        OrderBook bidsOrderBook = OrderBook(_bidsOrderBook);
-        OrderBook asksOrderBook = OrderBook(_asksOrderBook);
+        OrderBook bidsOrderBook = OrderBook(getBidsOrderBook());
+        OrderBook asksOrderBook = OrderBook(getAsksOrderBook());
 
         // If the order is not neither in bids order book nor in asks order book,
         // transaction will be reverted when trying to get the order from asks order book.
@@ -36,9 +36,9 @@ abstract contract InstrumentOrderBookAskable is
         returns (OrderBookRecord[] memory)
     {
         OrderBookRecord[] memory askRecords =
-            OrderBook(_asksOrderBook).getOrderBookRecords(false);
+            OrderBook(getAsksOrderBook()).getOrderBookRecords(false);
         OrderBookRecord[] memory bidRecords =
-            OrderBook(_bidsOrderBook).getOrderBookRecords(false);
+            OrderBook(getBidsOrderBook()).getOrderBookRecords(false);
         return _concatArrays(askRecords, bidRecords);
     }
 
@@ -48,7 +48,10 @@ abstract contract InstrumentOrderBookAskable is
         override(IInstrumentOrderBookAskable)
         returns (uint256)
     {
-        OrderBook orderBook = (orderType == OrderType.Sell) ? OrderBook(_bidsOrderBook) : OrderBook(_asksOrderBook);
+        OrderBook orderBook =
+            (orderType == OrderType.Sell)
+                ? OrderBook(getBidsOrderBook())
+                : OrderBook(getAsksOrderBook());
         return orderBook.empty() ? 0 : orderBook.getSpotPrice();
     }
 
@@ -58,7 +61,7 @@ abstract contract InstrumentOrderBookAskable is
         override(IInstrumentOrderBookAskable)
         returns (bytes32[] memory)
     {
-        return _addressToOrderIds[bidder].toStorageArray();
+        return getAddressToOrderIdsMapping()[bidder].toStorageArray();
     }
 
     /******************************** private ********************************/

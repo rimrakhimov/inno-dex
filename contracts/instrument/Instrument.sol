@@ -3,13 +3,13 @@ pragma solidity ^0.8.3;
 
 import "./interfaces/IInstrument.sol";
 import "./InstrumentMetadata.sol";
-import "./InstrumentOrderBook.sol";
+import "./InstrumentStorage.sol";
 import "./InstrumentOrderBookAskable.sol";
 import "./InstrumentOrderable.sol";
 
 contract Instrument is
+    InstrumentStorage,
     InstrumentMetadata,
-    InstrumentOrderBook,
     InstrumentOrderBookAskable,
     InstrumentOrderable
 {

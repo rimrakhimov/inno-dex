@@ -3,6 +3,7 @@ const WETH = artifacts.require("WETH");
 
 const Bytes32SetLib = artifacts.require("Bytes32SetLib");
 const IterableSortedUintToBytes32SetMapping = artifacts.require("IterableSortedUintToBytes32SetMapping");
+const InstrumentOrderableLib = artifacts.require("InstrumentOrderableLib");
 
 const Instrument = artifacts.require("Instrument");
 
@@ -15,6 +16,7 @@ module.exports = async function (deployer, network) {
 
     Instrument.link(Bytes32SetLib);
     Instrument.link(IterableSortedUintToBytes32SetMapping);
+    Instrument.link(InstrumentOrderableLib);
 
     if (network == 'ropsten') {
         return deployer.deploy(Instrument, erc20Instance.address, ropstenWethAddress, priceStep);
