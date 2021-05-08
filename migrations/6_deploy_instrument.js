@@ -9,7 +9,7 @@ const Instrument = artifacts.require("Instrument");
 
 const ropstenWethAddress = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
 
-const priceStep = web3.utils.toBN(10).pow(web3.utils.toBN(13));
+const priceStep = web3.utils.toBN(10).pow(web3.utils.toBN(8));
 
 module.exports = async function (deployer, network) {
     let erc20Instance = await ERC20.deployed();
